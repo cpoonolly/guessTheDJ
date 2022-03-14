@@ -1,11 +1,11 @@
 const { initializeApp } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
-// const { getAuth, signInWithCredential, GoogleAuthProvider } = require("firebase/auth");
+const { getAuth } = require("firebase-admin/auth");
 
 initializeApp();
 
 const db = getFirestore();
-// const auth = getAuth();
+const auth = getAuth();
 
 function groupBy(items, key) {
   return items.reduce((acc, item) => ({...acc, [key(item)]: [...(acc[key(item)] || []), item]}), {});
@@ -27,14 +27,10 @@ class User {
 
   static async getUserFromToken(token) {
     try {
-
-      // Taken from: https://firebase.google.com/docs/auth/web/google-signin#web-version-9_9
-      const credential = GoogleAuthProvider.credential(token);
-      const response = await signInWithCredential(auth, credential);
-      const userId = response.user['sub'];
-      const userName = response.user['name'];
+      const { uid } = await auth.verifyIdToken(token);
+      const user = await auth.getUser(uid);
       
-      return new User({id: userId, name: userName});
+      return new User({id: user.uid, name: user.displayName});
     } catch (e) {
       console.error(e);
       return null;
@@ -223,8 +219,6 @@ class Game {
   }
 }
 
-exports = {
-  User,
-  Song,
-  Game
-};
+exports.User = User;
+exports.Song = Song;
+exports.Game = Game;

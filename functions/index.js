@@ -18,7 +18,7 @@ function sendResponse(res, statusCode, message) {
  * Get the game data as of a given date
  */
 exports.createGame = functions.https.onRequest(async (req, res) => {
-  const {token} = req.body;
+  const { token } = req.body.data;
   const user = await User.getUserFromToken(token);
   if (!user) {
     sendResponse(res, 401, {message: 'Failed to authorize user'});
@@ -35,7 +35,7 @@ exports.createGame = functions.https.onRequest(async (req, res) => {
  * Get the game data as of a given date
  */
 exports.getGame = functions.https.onRequest(async (req, res) => {
-  const {token, gameId, date: dateUnix = dayjs().unix()} = req.body;
+  const { token, gameId, date: dateUnix = dayjs().unix() } = req.body;
   const date = dayjs.unix(dateUnix);
 
   const user = await User.getUserFromToken(token);
@@ -78,7 +78,7 @@ exports.getGame = functions.https.onRequest(async (req, res) => {
  * Add a song suggestion for the current user.
  */
 exports.addSong = functions.https.onRequest(async (req, res) => {
-  const {token, gameId, content} = req.body;
+  const { token, gameId, content } = req.body;
   const user = await User.getUserFromToken(token);
   if (!user) {
     sendResponse(res, 401, {message: 'Failed to authorize user'});
@@ -102,7 +102,7 @@ exports.addSong = functions.https.onRequest(async (req, res) => {
  * Called when the `/dj_guess @username` slack command is executed.
  */
 exports.addVote = functions.https.onRequest(async (req, res) => {
-  const {token, gameId, vote} = req.body;
+  const { token, gameId, vote } = req.body;
 
   const user = await User.getUserFromToken(token);
   if (!user) {

@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFunctions, httpsCallable } from "firebase/functions";
+import { getFunctions, httpsCallable, connectFunctionsEmulator } from "firebase/functions";
 
 
 const firebase = initializeApp({
@@ -12,6 +12,7 @@ const firebase = initializeApp({
 });
 
 const functions = getFunctions();
+connectFunctionsEmulator(functions, "localhost", 5001);
 
 export const createGame = httpsCallable(functions, 'createGame');
 export const getGame = httpsCallable(functions, 'getGame');

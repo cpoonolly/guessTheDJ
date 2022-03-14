@@ -22,7 +22,7 @@ export const useUser = () => {
       const credential = GoogleAuthProvider.credentialFromResult(result);
 
       setUser(result.user);
-      setToken(credential.accessToken);
+      setToken(credential.idToken);
     }).catch(error => {
       setError(error.message);
     });
