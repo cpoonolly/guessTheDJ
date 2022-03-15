@@ -7,10 +7,10 @@ const utc = require('dayjs/plugin/utc');
 
 dayjs.extend(utc);
 
-function sendResponse(res, statusCode, message) {
+function sendResponse(res, statusCode, data) {
   res.setHeader('content-type', 'application/json');
   res.status(statusCode);
-  res.send(message);
+  res.send({data});
   res.end();
 }
 
@@ -35,7 +35,8 @@ exports.createGame = functions.https.onRequest(async (req, res) => {
  * Get the game data as of a given date
  */
 exports.getGame = functions.https.onRequest(async (req, res) => {
-  const { token, gameId, date: dateUnix = dayjs().unix() } = req.body;
+  console.log('getGame called!')
+  const { token, gameId, date: dateUnix = dayjs().unix() } = req.body.data;
   const date = dayjs.unix(dateUnix);
 
   const user = await User.getUserFromToken(token);
@@ -78,7 +79,7 @@ exports.getGame = functions.https.onRequest(async (req, res) => {
  * Add a song suggestion for the current user.
  */
 exports.addSong = functions.https.onRequest(async (req, res) => {
-  const { token, gameId, content } = req.body;
+  const { token, gameId, content } = req.body.data;
   const user = await User.getUserFromToken(token);
   if (!user) {
     sendResponse(res, 401, {message: 'Failed to authorize user'});
@@ -102,7 +103,7 @@ exports.addSong = functions.https.onRequest(async (req, res) => {
  * Called when the `/dj_guess @username` slack command is executed.
  */
 exports.addVote = functions.https.onRequest(async (req, res) => {
-  const { token, gameId, vote } = req.body;
+  const { token, gameId, vote } = req.body.data;
 
   const user = await User.getUserFromToken(token);
   if (!user) {
@@ -113,6 +114,11 @@ exports.addVote = functions.https.onRequest(async (req, res) => {
   const game = await Game.getForId(gameId);
   if (!game) {
     sendResponse(res, 404, {message: 'Game not found'});
+    return;
+  }
+
+  if (!game.hasUnplayedSongs) {
+    sendResponse(res, 400, {message: 'No songs available for today'});
     return;
   }
 

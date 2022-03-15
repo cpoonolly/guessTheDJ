@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 
-import firebase from "./firebase";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signInWithRedirect, GoogleAuthProvider } from "firebase/auth";
 
 const provider = new GoogleAuthProvider();
 const auth = getAuth();
@@ -18,13 +17,13 @@ export const useUser = () => {
   }
 
   useEffect(() => {
-    signInWithPopup(auth, provider).then(result => {
-      const credential = GoogleAuthProvider.credentialFromResult(result);
-
-      setUser(result.user);
-      setToken(credential.idToken);
-    }).catch(error => {
-      setError(error.message);
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setUser(user);
+        setToken(await user.getIdToken());
+      } else {
+        signInWithRedirect(auth, provider);
+      }
     });
   }, []);
 

@@ -2,10 +2,11 @@ import React from 'react';
 import { Routes, Route } from "react-router-dom";
 
 import './App.css';
-import NewGame from './NewGame';
-import Game from './Game';
+import NewGame from './components/NewGame';
+import TodaysGame from './components/TodaysGame';
+import PastGame from './components/PastGame';
 import { firebase } from './firebase';
-import { useUser } from './useUser';
+import { useUser } from './hooks/useUser';
 
 function App() {
   const {user, token, error} = useUser();
@@ -16,14 +17,15 @@ function App() {
   }
 
   if (!user || !token) {
-    return (<div>Logging in Page. (make sure to unblock popups)</div>);
+    return (<div>Loading User...</div>);
   }
 
   return (
     <div>
       <Routes>
         <Route path="/" element={<NewGame user={user} token={token} />} />
-        <Route path="/game/:gameId/" element={<Game user={user} token={token} />} />
+        <Route path="/game/:gameId/" element={<TodaysGame user={user} token={token} />} />
+        <Route path="/game/:gameId/date/:date" element={<PastGame user={user} token={token} />} />
       </Routes>
     </div>
   );

@@ -2,6 +2,9 @@ const { initializeApp } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
 const { getAuth } = require("firebase-admin/auth");
 
+const dayjs = require('dayjs');
+const { v4: uuidv4 } = require('uuid');
+
 initializeApp();
 
 const db = getFirestore();
@@ -122,6 +125,10 @@ class Game {
     return groupBy(this.unplayedSongs, song => song.userId);
   }
 
+  get hasUnplayedSongs() {
+    return this.unplayedSongs && this.unplayedSongs.length > 0;
+  }
+
   get todaysSong() {
     const today = dayjs().startOf('day');
     return this.songByPlayDate[today];
@@ -133,7 +140,7 @@ class Game {
     }
 
     await db.collection('games')
-      .doc(this.gameId)
+      .doc(this.id)
       .collection('users')
       .doc(user.id)
       .set({
@@ -147,7 +154,7 @@ class Game {
 
   async removeUser(userId) {
     await db.collection('games')
-      .doc(this.gameId)
+      .doc(this.id)
       .collection('users')
       .doc(userId)
       .delete();
@@ -159,7 +166,7 @@ class Game {
     const song = new Song({gameId: this.id, userId: user.id, content});
 
     await db.collection('games')
-      .doc(this.gameId)
+      .doc(this.id)
       .collection('songs')
       .doc(song.id)
       .set({
@@ -176,7 +183,7 @@ class Game {
 
   async removeSong(songId) {
     await db.collection('games')
-      .doc(this.gameId)
+      .doc(this.id)
       .collection('songs')
       .doc(song.id)
       .delete();
@@ -185,7 +192,8 @@ class Game {
   }
 
   async chooseTodaysSong() {
-    if (this.todaysSong) {
+    console.log(`!this.unplayedSongs: ${!this.unplayedSongs}`);
+    if (this.todaysSong || !this.hasUnplayedSongs) {
       return;
     }
 
@@ -212,10 +220,15 @@ class Game {
       return null;
     }
 
-    const users = await db.collection('games').doc(id).collection('users').get().map(doc => new User(doc));
-    const songs = await db.collection('games').doc(id).collection('songs').get().map(doc => new Song(doc));
+    const users = [];
+    const userDocs = await db.collection('games').doc(id).collection('users').get();
+    userDocs.forEach(doc => users.push(new User(doc)));
 
-    return Game({id, users, songs});
+    const songs = [];
+    const songDocs = await db.collection('games').doc(id).collection('songs').get();
+    songDocs.forEach(doc => songs.push(new Song(doc)));
+
+    return new Game({id, users, songs});
   }
 }
 
