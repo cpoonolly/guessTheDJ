@@ -117,14 +117,14 @@ exports.addVote = functions.https.onRequest(async (req, res) => {
     return;
   }
 
-  if (!game.hasUnplayedSongs) {
-    sendResponse(res, 400, {message: 'No songs available for today'});
-    return;
-  }
-
   // Choose song for today if one isn't set
   if (!game.todaysSong) {
     await game.chooseTodaysSong();
+  }
+
+  if (!game.todaysSong) {
+    sendResponse(res, 400, {message: 'No songs available for today'});
+    return;
   }
 
   await game.todaysSong.vote(user, vote);
