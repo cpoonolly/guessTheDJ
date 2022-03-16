@@ -118,7 +118,7 @@ class Game {
   }
 
   get songByPlayDate() {
-    return mapBy(this.songs, song => song.playDate);
+    return mapBy(this.songs, song => song.playDateUnix);
   }
 
   get unplayedSongsByUserId() {
@@ -131,7 +131,7 @@ class Game {
 
   get todaysSong() {
     const today = dayjs().startOf('day');
-    return this.songByPlayDate[today];
+    return this.songByPlayDate[today.unix()];
   }
 
   async addUser(user) {
@@ -192,7 +192,6 @@ class Game {
   }
 
   async chooseTodaysSong() {
-    console.log(`!this.unplayedSongs: ${!this.unplayedSongs}`);
     if (this.todaysSong || !this.hasUnplayedSongs) {
       return;
     }
@@ -222,11 +221,11 @@ class Game {
 
     const users = [];
     const userDocs = await db.collection('games').doc(id).collection('users').get();
-    userDocs.forEach(doc => users.push(new User(doc)));
+    userDocs.forEach(doc => users.push(new User({...doc.data(), id: doc.id})));
 
     const songs = [];
     const songDocs = await db.collection('games').doc(id).collection('songs').get();
-    songDocs.forEach(doc => songs.push(new Song(doc)));
+    songDocs.forEach(doc => songs.push(new Song({...doc.data(), id: doc.id})));
 
     return new Game({id, users, songs});
   }

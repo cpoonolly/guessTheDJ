@@ -35,9 +35,9 @@ exports.createGame = functions.https.onRequest(async (req, res) => {
  * Get the game data as of a given date
  */
 exports.getGame = functions.https.onRequest(async (req, res) => {
-  console.log('getGame called!')
-  const { token, gameId, date: dateUnix = dayjs().unix() } = req.body.data;
-  const date = dayjs.unix(dateUnix);
+  const { token, gameId, date: dateUnix } = req.body.data;
+  const date = (dateUnix ? dayjs.unix(dateUnix) : dayjs());
+  const startOfDate = date.startOf('day').unix();
 
   const user = await User.getUserFromToken(token);
   if (!user) {
@@ -64,8 +64,9 @@ exports.getGame = functions.https.onRequest(async (req, res) => {
     } : {})
   } : null);
 
-  const song = game.songByPlayDate[date];
+  const song = game.songByPlayDate[startOfDate];
   const unplayedSongs = game.unplayedSongsByUserId[user.id] || [];
+
   sendResponse(res, 200, {
     users: game.users.map(user => ({id: user.id, name: user.name})),
     daysSong: songToJson(song),

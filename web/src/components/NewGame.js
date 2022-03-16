@@ -7,13 +7,17 @@ function NewGame({token}) {
   const navigate = useNavigate();
   const [ error, setError ] = useState(null);
 
-  useEffect(() => {
-    createGame({ token }).then(({data}) => {
-      const { id: gameId } = data;
+  const addGame = async () => {
+    try {
+      const { data: { id: gameId } } = await createGame({ token });
       navigate(`/game/${gameId}/`);
-    }).catch((error) => {
+    } catch (error) {
       setError({code: error.code, message: error.message});
-    });
+    }
+  }
+
+  useEffect(() => {
+    addGame();
   }, []);
 
   if (error) {
