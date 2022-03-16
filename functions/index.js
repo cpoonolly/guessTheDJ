@@ -46,10 +46,19 @@ exports.getGame = functions.https.onRequest(async (req, res) => {
     return;
   }
 
+  // If the user isn't part of the game yet add them
+  if (!game.usersById[user.id]) {
+    await game.addUser(user);
+  }
+
   // Choose song for today if one isn't set
   if (!game.todaysSong) {
     await game.chooseTodaysSong();
   }
+
+  const userToJson = (user) => (user ? {
+    id: user.id, name: user.name
+  } : null);
 
   const songToJson = (song) => (song ? {
     id: song.id,
@@ -64,7 +73,7 @@ exports.getGame = functions.https.onRequest(async (req, res) => {
   const unplayedSongs = game.unplayedSongsByUserId[user.id] || [];
 
   sendResponse(res, 200, {
-    users: game.users.map(user => ({id: user.id, name: user.name})),
+    users: game.users.map(user => userToJson(user)),
     daysSong: songToJson(song),
     playedSongs: game.playedSongs.map(song => songToJson(song)),
     unplayedSongs: unplayedSongs.map(song => songToJson(song)),
