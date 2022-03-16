@@ -44,6 +44,7 @@ const TodaysGame = ({ token }) => {
 
   return (
     <>
+      <h1 className="text-3xl font-bold underline text-red-900">Hello Tailwind!</h1>
       {isLoading ? <p>Loading</p> : <></>}
       {todaysSong ? (
         <>
@@ -63,7 +64,7 @@ const TodaysGame = ({ token }) => {
         <p><strong>Users:</strong></p>
         <ul>
           {users.map(user => (
-            <li key={user.id}>
+            <li key={user.id} className="list-disc">
               {todaysSong ? (
                 <a onClick={() => handleVoteAdd(user.id)} href="javascript:void(0)">(Vote)</a>
               ) : (
@@ -78,7 +79,7 @@ const TodaysGame = ({ token }) => {
         <p><strong>Unplayed Songs:</strong></p>
         <ul>
           {unplayedSongs.map(song => (
-            <li key={song.id}>
+            <li key={song.id} className="list-disc">
               <a onClick={() => handleSongRemove(song.id)} href="javascript:void(0)">(Delete)</a>
               {JSON.stringify(song)}
             </li>
@@ -93,7 +94,9 @@ const TodaysGame = ({ token }) => {
         <p><strong>Played Songs:</strong></p>
         <ul>
           {playedSongs.map(song => (
-            <li key={song.id}>{JSON.stringify(song)}</li>
+            <li key={song.id} className="list-disc">
+              {JSON.stringify(song)}
+            </li>
           ))}
         </ul>
       </div>
