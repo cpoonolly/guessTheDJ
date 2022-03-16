@@ -8,7 +8,7 @@ import PastGame from './components/PastGame';
 import { firebase } from './firebase';
 import { useUser } from './hooks/useUser';
 
-function App() {
+const App = () => {
   const {user, token, error} = useUser();
 
   if (error) {

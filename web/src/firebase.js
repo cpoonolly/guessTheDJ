@@ -17,6 +17,7 @@ connectFunctionsEmulator(functions, "localhost", 5001);
 export const createGame = httpsCallable(functions, 'createGame');
 export const getGame = httpsCallable(functions, 'getGame');
 export const addSong = httpsCallable(functions, 'addSong');
+export const removeSong = httpsCallable(functions, 'removeSong');
 export const addVote = httpsCallable(functions, 'addVote');
 
 export default firebase;

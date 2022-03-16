@@ -71,11 +71,11 @@ class Song {
   }
 
   get isPlayed() {
-    return this.playDate && dayjs().isAfter(this.playDate);
+    return !!this.playDate && dayjs().isAfter(this.playDate);
   }
 
   get isRevealed() {
-    return this.revealDate && dayjs().isAfter(this.revealDate);
+    return !!this.revealDate && dayjs().isAfter(this.revealDate);
   }
 
   async play() {
@@ -119,6 +119,10 @@ class Game {
 
   get unplayedSongs() {
     return this.songs.filter(s => !s.isPlayed);
+  }
+
+  get songsById() {
+    return mapBy(this.songs, song => song.id);
   }
 
   get songByPlayDate() {
@@ -193,7 +197,7 @@ class Game {
     await db.collection('games')
       .doc(this.id)
       .collection('songs')
-      .doc(song.id)
+      .doc(songId)
       .delete();
 
     this.songs = this.songs.filter(song => song.id !== songId);

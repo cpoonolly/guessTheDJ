@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 
 import { useGame } from '../hooks/useGame';
 
-function PastGame({ token }) {
+const PastGame = ({ token }) => {
   const { gameId, date } = useParams();
   const dateUnix = dayjs(date).unix();
 

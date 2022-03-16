@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { createGame } from "../firebase";
 
-function NewGame({token}) {
+const NewGame = ({token}) => {
   const navigate = useNavigate();
   const [ error, setError ] = useState(null);
 

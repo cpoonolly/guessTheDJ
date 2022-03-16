@@ -14,9 +14,7 @@ function sendResponse(res, statusCode, data) {
   res.end();
 }
 
-/**
- * Get the game data as of a given date
- */
+/** Create a new Guess the DJ Game */
 exports.createGame = functions.https.onRequest(async (req, res) => {
   const { token } = req.body.data;
   const user = await User.getUserFromToken(token);
@@ -31,9 +29,7 @@ exports.createGame = functions.https.onRequest(async (req, res) => {
   sendResponse(res, 201, {id: game.id, message: 'Game Created'});
 });
 
-/**
- * Get the game data as of a given date
- */
+/** Fetch Game data for a given date (or today if none specified) */
 exports.getGame = functions.https.onRequest(async (req, res) => {
   const { token, gameId, date: dateStr } = req.body.data;
   const date = (dateStr ? dayjs(dateStr) : dayjs());
@@ -56,11 +52,12 @@ exports.getGame = functions.https.onRequest(async (req, res) => {
   }
 
   const songToJson = (song) => (song ? {
+    id: song.id,
     content: song.content,
-    ...(song.isRevealed ? {
-      playDate: song.playDateFormatted,
-      votesByUserId: song.votesByUserId,
-    } : {})
+    isPlayed: song.isPlayed,
+    isRevealed: song.isRevealed,
+    playDate: song.playDateFormatted,
+    votesByUserId: song.isRevealed ? song.votesByUserId : {}
   } : null);
 
   const song = game.getSongForDate(date);
@@ -75,9 +72,7 @@ exports.getGame = functions.https.onRequest(async (req, res) => {
   })
 });
 
-/**
- * Add a song suggestion for the current user.
- */
+/** Add a song suggestion to be played on a random day */
 exports.addSong = functions.https.onRequest(async (req, res) => {
   const { token, gameId, content } = req.body.data;
   const user = await User.getUserFromToken(token);
@@ -98,10 +93,41 @@ exports.addSong = functions.https.onRequest(async (req, res) => {
   sendResponse(res, 201, {id: song.id, message: 'Song Added'});
 });
 
-/** 
- * Guess today's DJ.
- * Called when the `/dj_guess @username` slack command is executed.
- */
+
+/** Remove a unplayed song suggestion */
+ exports.removeSong = functions.https.onRequest(async (req, res) => {
+  const { token, gameId, songId } = req.body.data;
+  const user = await User.getUserFromToken(token);
+  if (!user) {
+    sendResponse(res, 401, {message: 'Failed to authorize user'});
+    return;
+  }
+
+  const game = await Game.getForId(gameId);
+  if (!game) {
+    sendResponse(res, 404, {message: 'Game not found'});
+    return;
+  }
+
+  const song = game.songsById[songId];
+  if (!song) {
+    sendResponse(res, 404, {message: 'Song not found'});
+    return;
+  }
+
+  if (song.isPlayed) {
+    sendResponse(res, 400, {message: 'Can not remove played song'});
+    return;
+  }
+
+  // remove the song
+  await game.removeSong(songId);
+
+  sendResponse(res, 201, {id: song.id, message: 'Song Added'});
+});
+
+
+/** Vote for todays DJ */
 exports.addVote = functions.https.onRequest(async (req, res) => {
   const { token, gameId, vote } = req.body.data;
 
