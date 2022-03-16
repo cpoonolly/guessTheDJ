@@ -8,20 +8,28 @@ const TodaysGame = ({ token }) => {
   const { gameId } = useParams();
   const { game, error, refresh: refreshGame } = useGame({ token, gameId });
   const [ songUrl, setSongUrl ] = useState(null);
+  const [ isLoading, setIsLoading ] = useState(false);
 
   const handleSongAdd = async () => {
+    setIsLoading(true);
     await addSong({ token, gameId, content: songUrl });
     await refreshGame();
+    setSongUrl(null);
+    setIsLoading(false);
   };
 
   const handleSongRemove = async (songId) => {
+    setIsLoading(true);
     await removeSong({ token, gameId, songId });
     await refreshGame();
+    setIsLoading(false);
   };
 
   const handleVoteAdd = async (userId) => {
+    setIsLoading(true);
     await addVote({ token, gameId, vote: userId });
     await refreshGame();
+    setIsLoading(false);
   };
 
   if (error) {
@@ -36,6 +44,7 @@ const TodaysGame = ({ token }) => {
 
   return (
     <>
+      {isLoading ? <p>Loading</p> : <></>}
       {todaysSong ? (
         <>
           <div>
