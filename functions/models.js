@@ -49,17 +49,21 @@ class User {
 }
 
 class Song {
-  constructor({id, gameId, content, userId, playDateUnix = null, votesByUserId = {}}) {
+  constructor({id, gameId, content, userId, playTime = null, votesByUserId = {}}) {
     this.id = id || uuidv4();
     this.gameId = gameId;
     this.content = content;
     this.userId = userId;
-    this.playDateUnix = playDateUnix;
+    this.playTime = playTime;
     this.votesByUserId = votesByUserId;
   }
 
   get playDate() {
-    return this.playDateUnix ? dayjs.unix(this.playDateUnix) : null;
+    return this.playTime ? dayjs.unix(this.playTime).startOf('day') : null;
+  }
+
+  get playDateFormatted() {
+    return this.playDate ? this.playDate.format('YYYY-MM-DD') : null;
   }
 
   get revealDate() {
@@ -79,12 +83,12 @@ class Song {
       return;
     }
 
-    this.playDateUnix = dayjs().startOf('day').unix();
+    this.playTime = dayjs().unix();
     await db.collection('games')
       .doc(this.gameId)
       .collection('songs')
       .doc(this.id)
-      .update({playDateUnix: this.playDateUnix});
+      .update({playTime: this.playTime});
   }
 
   async vote(user, vote) {
@@ -118,7 +122,7 @@ class Game {
   }
 
   get songByPlayDate() {
-    return mapBy(this.songs, song => song.playDateUnix);
+    return mapBy(this.songs, song => song.playDateFormatted);
   }
 
   get unplayedSongsByUserId() {
@@ -128,10 +132,14 @@ class Game {
   get hasUnplayedSongs() {
     return this.unplayedSongs && this.unplayedSongs.length > 0;
   }
+  
+  getSongForDate(date) {
+    const dateStr = date.format('YYYY-MM-DD');
+    return this.songByPlayDate[dateStr] || null;
+  }
 
   get todaysSong() {
-    const today = dayjs().startOf('day');
-    return this.songByPlayDate[today.unix()];
+    return this.getSongForDate(dayjs());
   }
 
   async addUser(user) {
@@ -173,7 +181,7 @@ class Game {
         gameId: song.gameId,
         content: song.content,
         userId: song.userId,
-        playDateUnix: song.playDateUnix,
+        playTime: song.playTime,
         votesByUserId: song.votesByUserId,
       });
 
