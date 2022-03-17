@@ -7,7 +7,7 @@
     "source": "functions"
   },
   "hosting": {
-    "predeploy": "cd ./web && npm && npm run build && cd -",
+    "predeploy": "cd ./web && npm install && npm run build && cd -",
     "public": "./web/build",
     "ignore": [
       "firebase.json",
