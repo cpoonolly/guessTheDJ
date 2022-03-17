@@ -17,8 +17,7 @@ jobs:
         run: |
           cd web
           npm install
-          set CI=false
-          npm run build
+          CI=false && npm run build
       # Deploying the functions to firebase
       - name:  Deploy to Firebase
         uses: w9jds/firebase-action@master
