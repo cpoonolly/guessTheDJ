@@ -1,49 +1,56 @@
 const functions = require("firebase-functions");
 
-const {User, Game} = require('./models');
+const { User, Game } = require('./models');
 const dayjs = require('dayjs');
 const utc = require('dayjs/plugin/utc');
-
+const cors = require('cors')({
+  origin: true,
+});
 
 dayjs.extend(utc);
 
-function sendResponse(res, statusCode, data) {
-  res.setHeader('content-type', 'application/json');
-  res.status(statusCode);
-  res.send({data});
-  res.end();
-}
+function onRequest(handler) {
+  return functions.https.onRequest((req, res) => {
+    cors(req, res, async () => {
+      const [statusCode, data] = await handler(req, res);
+
+      res.setHeader('content-type', 'application/json');
+      res.status(statusCode);
+      res.send({data});
+      res.end();
+    });
+  });
+};
+
+// sendResponse
 
 /** Create a new Guess the DJ Game */
-exports.createGame = functions.https.onRequest(async (req, res) => {
+exports.createGame = onRequest(async (req, res) => {
   const { token } = req.body.data;
   const user = await User.getUserFromToken(token);
   if (!user) {
-    sendResponse(res, 401, {message: 'Failed to authorize user'});
-    return;
+    return [401, {message: 'Failed to authorize user'}];
   }
 
   const game = await Game.create();
   await game.addUser(user);
 
-  sendResponse(res, 201, {id: game.id, message: 'Game Created'});
+  return [201, {id: game.id, message: 'Game Created'}];
 });
 
 /** Fetch Game data for a given date (or today if none specified) */
-exports.getGame = functions.https.onRequest(async (req, res) => {
+exports.getGame = onRequest(async (req, res) => {
   const { token, gameId, date: dateStr } = req.body.data;
   const date = (dateStr ? dayjs(dateStr) : dayjs());
 
   const user = await User.getUserFromToken(token);
   if (!user) {
-    sendResponse(res, 401, {message: 'Failed to authorize user'});
-    return;
+    return [401, {message: 'Failed to authorize user'}];
   }
 
   const game = await Game.getForId(gameId);
   if (!game) {
-    sendResponse(res, 404, {message: 'Game not found'});
-    return;
+    return [404, {message: 'Game not found'}];
   }
 
   // If the user isn't part of the game yet add them
@@ -72,84 +79,79 @@ exports.getGame = functions.https.onRequest(async (req, res) => {
   const song = game.getSongForDate(date);
   const unplayedSongs = game.unplayedSongsByUserId[user.id] || [];
 
-  sendResponse(res, 200, {
-    users: game.users.map(user => userToJson(user)),
-    daysSong: songToJson(song),
-    playedSongs: game.playedSongs.map(song => songToJson(song)),
-    unplayedSongs: unplayedSongs.map(song => songToJson(song)),
-    vote: (song && song.votesByUserId[user.id]) || null,
-  })
+  return [
+    200, 
+    {
+      users: game.users.map(user => userToJson(user)),
+      daysSong: songToJson(song),
+      playedSongs: game.playedSongs.map(song => songToJson(song)),
+      unplayedSongs: unplayedSongs.map(song => songToJson(song)),
+      vote: (song && song.votesByUserId[user.id]) || null,
+    }
+  ];
 });
 
 /** Add a song suggestion to be played on a random day */
-exports.addSong = functions.https.onRequest(async (req, res) => {
+exports.addSong = onRequest(async (req, res) => {
   const { token, gameId, content } = req.body.data;
   const user = await User.getUserFromToken(token);
   if (!user) {
-    sendResponse(res, 401, {message: 'Failed to authorize user'});
-    return;
+    return [401, {message: 'Failed to authorize user'}];
   }
 
   const game = await Game.getForId(gameId);
   if (!game) {
-    sendResponse(res, 404, {message: 'Game not found'});
-    return;
+    return [404, {message: 'Game not found'}];
   }
 
   // add song
   const song = await game.addSong(user, content);
 
-  sendResponse(res, 201, {id: song.id, message: 'Song Added'});
+  return [201, {id: song.id, message: 'Song Added'}];
 });
 
 
 /** Remove a unplayed song suggestion */
- exports.removeSong = functions.https.onRequest(async (req, res) => {
+ exports.removeSong = onRequest(async (req, res) => {
   const { token, gameId, songId } = req.body.data;
   const user = await User.getUserFromToken(token);
   if (!user) {
-    sendResponse(res, 401, {message: 'Failed to authorize user'});
-    return;
+    return [401, {message: 'Failed to authorize user'}];
   }
 
   const game = await Game.getForId(gameId);
   if (!game) {
-    sendResponse(res, 404, {message: 'Game not found'});
-    return;
+    return [404, {message: 'Game not found'}];
   }
 
   const song = game.songsById[songId];
   if (!song) {
-    sendResponse(res, 404, {message: 'Song not found'});
-    return;
+    return [404, {message: 'Song not found'}];
   }
 
   if (song.isPlayed) {
-    sendResponse(res, 400, {message: 'Can not remove played song'});
-    return;
+    return [400, {message: 'Can not remove played song'}];
   }
 
   // remove the song
   await game.removeSong(songId);
 
-  sendResponse(res, 201, {id: song.id, message: 'Song Added'});
+  return [201, {id: song.id, message: 'Song Added'}];
 });
 
 
 /** Vote for todays DJ */
-exports.addVote = functions.https.onRequest(async (req, res) => {
+exports.addVote = onRequest(async (req, res) => {
   const { token, gameId, vote } = req.body.data;
 
   const user = await User.getUserFromToken(token);
   if (!user) {
-    sendResponse(res, 401, {message: 'Failed to authorize user'});
-    return;
+    return [401, {message: 'Failed to authorize user'}];
   }
 
   const game = await Game.getForId(gameId);
   if (!game) {
-    sendResponse(res, 404, {message: 'Game not found'});
-    return;
+    return [404, {message: 'Game not found'}];
   }
 
   // Choose song for today if one isn't set
@@ -158,11 +160,10 @@ exports.addVote = functions.https.onRequest(async (req, res) => {
   }
 
   if (!game.todaysSong) {
-    sendResponse(res, 400, {message: 'No songs available for today'});
-    return;
+    return [400, {message: 'No songs available for today'}];
   }
 
   await game.todaysSong.vote(user, vote);
 
-  sendResponse(res, 200, {message: 'Vote Added'});
+  return [200, {message: 'Vote Added'}];
 });

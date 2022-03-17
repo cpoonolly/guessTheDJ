@@ -11,9 +11,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+      - name: Install hosting npm packages
+        run: |
+          cd web
+          npm install
+          CI=false && npm run build
+      - name: Install functions npm packages
+        run: |
+          cd functions
+          npm install
+      - name:  Deploy to Firebase
+        uses: w9jds/firebase-action@master
         with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_GUESSTHEDJ_51AD9 }}'
-          channelId: live
-          projectId: guessthedj-51ad9
+            args: deploy
+        env:
+            FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
