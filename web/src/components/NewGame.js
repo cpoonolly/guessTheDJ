@@ -2,6 +2,8 @@ import React, {useEffect, useState} from 'react';
 import { useNavigate } from "react-router-dom";
 
 import { createGame } from "../firebase";
+import { Spinner } from "./Spinner";
+import { ErrorOverlay } from "./ErrorOverlay";
 
 const NewGame = ({token}) => {
   const navigate = useNavigate();
@@ -21,13 +23,10 @@ const NewGame = ({token}) => {
   }, []);
 
   if (error) {
-    console.error(error);
-    return (<div>Failed to Create New Game</div>);
+    return <ErrorOverlay message="Failed to Create New Game" />;
   }
 
-  return (
-    <div>Creating New Game...</div>
-  );
+  return <Spinner />;
 }
 
 export default NewGame;

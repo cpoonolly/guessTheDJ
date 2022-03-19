@@ -3,48 +3,71 @@ import { useParams } from "react-router-dom";
 
 import { useGame } from '../hooks/useGame';
 import { addSong, removeSong, addVote } from "../firebase";
+import { Spinner } from "./Spinner";
+import { ErrorOverlay } from "./ErrorOverlay";
+import { ErrorMessage } from "./ErrorMessage";
 
 const TodaysGame = ({ token }) => {
   const { gameId } = useParams();
   const { game, error, refresh: refreshGame } = useGame({ token, gameId });
   const [ songUrl, setSongUrl ] = useState(null);
   const [ isLoading, setIsLoading ] = useState(false);
+  const [ errorMessage, setErrorMessage ] = useState(null);
 
   const handleSongAdd = async () => {
     setIsLoading(true);
-    await addSong({ token, gameId, content: songUrl });
-    await refreshGame();
-    setSongUrl(null);
+
+    try {
+      await addSong({ token, gameId, content: songUrl });
+      await refreshGame();
+      setSongUrl(null);
+    } catch (error) {
+      setErrorMessage('Failed to add Song');
+    }
+
     setIsLoading(false);
   };
 
   const handleSongRemove = async (songId) => {
     setIsLoading(true);
-    await removeSong({ token, gameId, songId });
-    await refreshGame();
+
+    try {
+      await removeSong({ token, gameId, songId });
+      await refreshGame();
+    } catch (error) {
+      setErrorMessage('Failed to remove Song');
+    }
+    
     setIsLoading(false);
   };
 
   const handleVoteAdd = async (userId) => {
     setIsLoading(true);
-    await addVote({ token, gameId, vote: userId });
-    await refreshGame();
+
+    try {
+      await addVote({ token, gameId, vote: userId });
+      await refreshGame();
+      throw Error('balh');
+    } catch (error) {
+      setErrorMessage('Failed to add Vote');
+    }
     setIsLoading(false);
   };
 
   if (error) {
-    return (<div>Failed to Load Game</div>);
+    return <ErrorOverlay message="Failed to Load Game" />;
   }
 
   if (!game) {
-    return (<div>Loading Game...</div>);
+    return <Spinner />;
   }
 
   const { vote, users, playedSongs, unplayedSongs, daysSong: todaysSong } = game;
 
   return (
     <>
-      {isLoading ? <p>Loading</p> : <></>}
+      {isLoading ? <Spinner /> : <></>}
+      {errorMessage ? <ErrorMessage message="Something went wrong" subMessage={errorMessage} onDismiss={() => setErrorMessage(null)} /> : <></>}
       {todaysSong ? (
         <>
           <div>

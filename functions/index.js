@@ -22,8 +22,6 @@ function onRequest(handler) {
   });
 };
 
-// sendResponse
-
 /** Create a new Guess the DJ Game */
 exports.createGame = onRequest(async (req, res) => {
   const { token } = req.body.data;
