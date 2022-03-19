@@ -20,7 +20,7 @@ To setup the BE locally simply run the following in one terminal window:
 ```
 nvm use
 npm install -g firebase-tools
-firebase emulators:start --only functions
+firebase emulators:start --only functions,firestore
 ```
 
 ### To point local FE to local BE (Optional)

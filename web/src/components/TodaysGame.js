@@ -47,7 +47,6 @@ const TodaysGame = ({ token }) => {
     try {
       await addVote({ token, gameId, vote: userId });
       await refreshGame();
-      throw Error('balh');
     } catch (error) {
       setErrorMessage('Failed to add Vote');
     }
