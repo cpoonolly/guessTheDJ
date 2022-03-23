@@ -1,45 +1,24 @@
 import React, { useState } from 'react';
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+
+import { Grid, Segment, Label, Header, Icon, Button } from 'semantic-ui-react'
 
 import { useGame } from '../hooks/useGame';
-import { addSong, removeSong, addVote } from "../firebase";
+import { addVote } from "../firebase";
 import { Spinner } from "./Spinner";
 import { ErrorOverlay } from "./ErrorOverlay";
 import { ErrorMessage } from "./ErrorMessage";
+import { getRandomColor } from '../utils/colors';
+import { getRandomAvatarSmall } from '../utils/avatars';
+
 
 const TodaysGame = ({ token }) => {
   const { gameId } = useParams();
+  const navigate = useNavigate();
   const { game, error, refresh: refreshGame } = useGame({ token, gameId });
   const [ songUrl, setSongUrl ] = useState(null);
   const [ isLoading, setIsLoading ] = useState(false);
-  const [ errorMessage, setErrorMessage ] = useState(null);
-
-  const handleSongAdd = async () => {
-    setIsLoading(true);
-
-    try {
-      await addSong({ token, gameId, content: songUrl });
-      await refreshGame();
-      setSongUrl(null);
-    } catch (error) {
-      setErrorMessage('Failed to add Song');
-    }
-
-    setIsLoading(false);
-  };
-
-  const handleSongRemove = async (songId) => {
-    setIsLoading(true);
-
-    try {
-      await removeSong({ token, gameId, songId });
-      await refreshGame();
-    } catch (error) {
-      setErrorMessage('Failed to remove Song');
-    }
-    
-    setIsLoading(false);
-  };
+  const [ errorBanner, setErrorBanner ] = useState(null);
 
   const handleVoteAdd = async (userId) => {
     setIsLoading(true);
@@ -48,9 +27,14 @@ const TodaysGame = ({ token }) => {
       await addVote({ token, gameId, vote: userId });
       await refreshGame();
     } catch (error) {
-      setErrorMessage('Failed to add Vote');
+      console.error(error);
+      setErrorBanner('Failed to add Vote');
     }
     setIsLoading(false);
+  };
+
+  const handleSongSuggest = () => {
+    navigate(`/game/${gameId}/songs`);
   };
 
   if (error) {
@@ -64,63 +48,59 @@ const TodaysGame = ({ token }) => {
   const { vote, users, playedSongs, unplayedSongs, daysSong: todaysSong } = game;
 
   return (
-    <>
+    <Grid container>
       {isLoading ? <Spinner /> : <></>}
-      {errorMessage ? <ErrorMessage message="Something went wrong" subMessage={errorMessage} onDismiss={() => setErrorMessage(null)} /> : <></>}
+      <Grid.Row style={{minHeight: '150px'}}>
+        <Grid.Column verticalAlign='top'>
+          <Segment basic>
+            {errorBanner ? <ErrorMessage message="Something went wrong" subMessage={errorBanner} onDismiss={() => setErrorBanner(null)} /> : <></>}
+          </Segment>
+        </Grid.Column>
+      </Grid.Row>
       {todaysSong ? (
-        <>
-          <div>
-            <p><strong>Today's Song:</strong></p>
-            <p>{JSON.stringify(todaysSong)}</p>
-          </div>
-          <div>
-            <p><strong>Current Vote:</strong></p>
-            <p>{vote}</p> 
-          </div>
-        </>
+        <Grid.Row centered style={{minHeight: 'calc(100vh - 150px)'}}>
+          <Grid.Column padded verticalAlign='middle' width={10}>
+            <Segment>Hello World</Segment>
+            <Segment>
+              <VoteBox vote={vote} users={users} onVote={user => handleVoteAdd(user.id)} />
+            </Segment>
+          </Grid.Column>
+        </Grid.Row>
       ) : (
-        <></>
+        <Grid.Row centered style={{minHeight: 'calc(100vh - 150px)'}}>
+          <Grid.Column padded verticalAlign='middle' width={10}>
+            <Segment placeholder>
+              <Header icon>
+                <Icon name='music' />
+                No Songs suggested for today
+              </Header>
+              <Button primary onClick={handleSongSuggest}>Suggest Song</Button>
+            </Segment>
+          </Grid.Column>
+        </Grid.Row>
       )}
-      <div>
-        <p><strong>Users:</strong></p>
-        <ul>
-          {users.map(user => (
-            <li key={user.id}>
-              {todaysSong ? (
-                <a onClick={() => handleVoteAdd(user.id)} href="javascript:void(0)">(Vote)</a>
-              ) : (
-                <></>
-              )}
-              {JSON.stringify(user)}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div>
-        <p><strong>Unplayed Songs:</strong></p>
-        <ul>
-          {unplayedSongs.map(song => (
-            <li key={song.id}>
-              <a onClick={() => handleSongRemove(song.id)} href="javascript:void(0)">(Delete)</a>
-              {JSON.stringify(song)}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div>
-        <input type={'text'} value={songUrl} onChange={e => setSongUrl(e.target.value)} />
-        <button onClick={handleSongAdd}>Add Song</button>
-      </div>
-      <div>
-        <p><strong>Played Songs:</strong></p>
-        <ul>
-          {playedSongs.map(song => (
-            <li key={song.id}>{JSON.stringify(song)}</li>
-          ))}
-        </ul>
-      </div>
-    </>
+    </Grid>
   );
 }
+
+const VoteBox = ({vote, users, onVote}) => {
+  return (
+    <Grid>
+      {users.map(user => {
+        const color = getRandomColor();
+        const avatar = getRandomAvatarSmall();
+
+        return (
+          <Grid.Column key={user.id} width={4}>
+            <Label as='a' color={vote === user.id ? color : undefined} image onClick={user => onVote(user)}>
+              <img src={avatar} />
+              {user.name}
+            </Label>
+          </Grid.Column>
+        )
+      })}
+    </Grid>
+  )
+};
 
 export default TodaysGame;
