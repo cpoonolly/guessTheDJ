@@ -1,1 +1,9 @@
+button.ui.button-primary {
+  background-color: #4d1d8a;
+  color: white;
+}
 
+button.ui.button-primary:hover {
+  background-color: #592997;
+  color: white;
+}
