@@ -7,7 +7,7 @@ import { Spinner } from "./Spinner";
 import { ErrorOverlay } from "./ErrorOverlay";
 import { ErrorMessage } from "./ErrorMessage";
 
-const PastGame = ({ token }) => {
+const MySongs = ({ token }) => {
   const { gameId } = useParams();
   const { game, error, refresh: refreshGame } = useGame({ token, gameId });
   const [ songUrl, setSongUrl ] = useState(null);
@@ -123,4 +123,4 @@ const PastGame = ({ token }) => {
   );
 }
 
-export default PastGame;
+export default MySongs;

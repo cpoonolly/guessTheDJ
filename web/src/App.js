@@ -5,7 +5,7 @@ import './App.css';
 import NewGame from './components/NewGame';
 import TodaysGame from './components/TodaysGame';
 import PastGame from './components/PastGame';
-import { firebase } from './firebase';
+import MySongs from './components/MySongs';
 import { useUser } from './hooks/useUser';
 
 const App = () => {
@@ -26,6 +26,7 @@ const App = () => {
         <Route path="/" element={<NewGame user={user} token={token} />} />
         <Route path="/game/:gameId/" element={<TodaysGame user={user} token={token} />} />
         <Route path="/game/:gameId/date/:date" element={<PastGame user={user} token={token} />} />
+        <Route path="/game/:gameId/songs" element={<MySongs user={user} token={token} />} />
       </Routes>
     </div>
   );

@@ -12,5 +12,6 @@ export const ErrorMessage = ({
     content={subMessage}
     onDismiss={onDismiss}
     negative
+    floating
   />
 );
