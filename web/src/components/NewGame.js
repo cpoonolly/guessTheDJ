@@ -41,38 +41,31 @@ const NewGame = ({ token }) => {
   }
 
   return (
-    <Grid
-      style={{
-        background:
-          "linear-gradient(217deg, rgba(255,0,0,.8), rgba(255,0,0,0) 70.71%), linear-gradient(127deg, rgba(0, 0, 255, .8), rgba(0, 0, 255,0) 70.71%), linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(30, 5, 61, 100) 90%)",
-      }}
-    >
-      <Grid container style={{ minHeight: "calc(100vh)" }}>
-        <Grid.Row centered>
-          <Grid.Column verticalAlign="middle" padded width={8}>
-            <Segment vertical basic>
-              <Input
-                fluid
-                size="huge"
-                placeholder="Room ID"
-                value={roomId}
-                onChange={(e) => setRoomId(e.target.value)}
-              />
-            </Segment>
-            <Segment vertical basic>
-              <Button.Group size="huge" widths="8">
-                <Button primary onClick={addGame}>
-                  Create
-                </Button>
-                <Button.Or />
-                <Button secondary disabled={!roomId} onClick={joinGame}>
-                  Join
-                </Button>
-              </Button.Group>
-            </Segment>
-          </Grid.Column>
-        </Grid.Row>
-      </Grid>
+    <Grid container style={{ minHeight: "calc(100vh)" }}>
+      <Grid.Row centered>
+        <Grid.Column verticalAlign="middle" padded width={8}>
+          <Segment vertical basic>
+            <Input
+              fluid
+              size="huge"
+              placeholder="Room ID"
+              value={roomId}
+              onChange={(e) => setRoomId(e.target.value)}
+            />
+          </Segment>
+          <Segment vertical basic>
+            <Button.Group size="huge" widths="8">
+              <Button className="button-primary" onClick={addGame}>
+                Create
+              </Button>
+              <Button.Or />
+              <Button color="black" disabled={!roomId} onClick={joinGame}>
+                Join
+              </Button>
+            </Button.Group>
+          </Segment>
+        </Grid.Column>
+      </Grid.Row>
     </Grid>
   );
 };
