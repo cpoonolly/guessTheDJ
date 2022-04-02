@@ -41,7 +41,7 @@ const NewGame = ({ token }) => {
   }
 
   return (
-    <Grid container style={{ minHeight: "calc(100vh)" }}>
+    <Grid container padded="vertically" style={{ minHeight: "calc(100vh)" }}>
       <Grid.Row centered>
         <Grid.Column verticalAlign="middle" padded width={8}>
           <Segment vertical basic>

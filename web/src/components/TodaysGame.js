@@ -8,13 +8,12 @@ import { addVote } from "../firebase";
 import { Spinner } from "./Spinner";
 import { ErrorOverlay } from "./ErrorOverlay";
 import { ErrorMessage } from "./ErrorMessage";
-import { getRandomColor } from '../utils/colors';
-import { getRandomAvatarSmall } from '../utils/avatars';
+import { getColorForValue } from '../utils/colors';
+import { getAvatarSmallForValue } from '../utils/avatars';
 
 
-const TodaysGame = ({ token }) => {
+const TodaysGame = ({ user, token }) => {
   const { gameId } = useParams();
-  const navigate = useNavigate();
   const { game, error, refresh: refreshGame } = useGame({ token, gameId });
   const [ songUrl, setSongUrl ] = useState(null);
   const [ isLoading, setIsLoading ] = useState(false);
@@ -33,10 +32,6 @@ const TodaysGame = ({ token }) => {
     setIsLoading(false);
   };
 
-  const handleSongSuggest = () => {
-    navigate(`/game/${gameId}/songs`);
-  };
-
   if (error) {
     return <ErrorOverlay message="Failed to Load Game" />;
   }
@@ -48,7 +43,7 @@ const TodaysGame = ({ token }) => {
   const { vote, users, playedSongs, unplayedSongs, daysSong: todaysSong } = game;
 
   return (
-    <Grid container>
+    <Grid container padded="vertically">
       {isLoading ? <Spinner /> : <></>}
       <Grid.Row style={{minHeight: '150px'}}>
         <Grid.Column verticalAlign='top'>
@@ -67,17 +62,7 @@ const TodaysGame = ({ token }) => {
           </Grid.Column>
         </Grid.Row>
       ) : (
-        <Grid.Row centered style={{minHeight: 'calc(100vh - 150px)'}}>
-          <Grid.Column padded verticalAlign='middle' width={10}>
-            <Segment placeholder>
-              <Header icon>
-                <Icon name='music' />
-                No Songs suggested for today
-              </Header>
-              <Button primary onClick={handleSongSuggest}>Suggest Song</Button>
-            </Segment>
-          </Grid.Column>
-        </Grid.Row>
+        <NoSongsToday game={game} />
       )}
     </Grid>
   );
@@ -85,13 +70,13 @@ const TodaysGame = ({ token }) => {
 
 const VoteBox = ({vote, users, onVote}) => {
   return (
-    <Grid>
+    <Grid stackable columns={2}>
       {users.map(user => {
-        const color = getRandomColor();
-        const avatar = getRandomAvatarSmall();
+        const color = getColorForValue(user.id);
+        const avatar = getAvatarSmallForValue(user.id);
 
         return (
-          <Grid.Column key={user.id} width={4}>
+          <Grid.Column key={user.id}>
             <Label as='a' color={vote === user.id ? color : undefined} image onClick={user => onVote(user)}>
               <img src={avatar} />
               {user.name}
@@ -101,6 +86,29 @@ const VoteBox = ({vote, users, onVote}) => {
       })}
     </Grid>
   )
+};
+
+const NoSongsToday = ({ game }) => {
+  const { gameId } = game;
+  const navigate = useNavigate();
+
+  const handleSongSuggest = () => {
+    navigate(`/game/${gameId}/songs`);
+  };  
+
+  return (
+    <Grid.Row centered style={{minHeight: 'calc(100vh - 150px)'}}>
+      <Grid.Column padded verticalAlign='middle' width={10}>
+        <Segment placeholder>
+          <Header icon>
+            <Icon name='music' />
+            No Songs suggested for today
+          </Header>
+          <Button primary onClick={handleSongSuggest}>Suggest Song</Button>
+        </Segment>
+      </Grid.Column>
+    </Grid.Row>
+  );
 };
 
 export default TodaysGame;

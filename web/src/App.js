@@ -10,6 +10,7 @@ import { useUser } from "./hooks/useUser";
 
 const App = () => {
   const { user, token, error } = useUser();
+  console.info(user);
 
   if (error) {
     console.error(error);

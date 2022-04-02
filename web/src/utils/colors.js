@@ -1,3 +1,4 @@
+import { hash } from './hash';
 
 export const COLORS = [
   'red',
@@ -16,3 +17,5 @@ export const COLORS = [
 ];
 
 export const getRandomColor = () => COLORS[Math.floor(Math.random() * COLORS.length)];
+
+export const getColorForValue = (val) => COLORS[Math.floor(hash(val)) % COLORS.length];

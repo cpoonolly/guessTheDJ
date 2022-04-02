@@ -1,3 +1,5 @@
+import { hash } from './hash';
+
 export const AVATARS_SMALL = [
   'https://raw.githubusercontent.com/Semantic-Org/Semantic-UI-React/master/docs/public/images/avatar/small/ade.jpg',
   'https://raw.githubusercontent.com/Semantic-Org/Semantic-UI-React/master/docs/public/images/avatar/small/chris.jpg',
@@ -55,3 +57,7 @@ export const AVATARS_LARGE = [
 export const getRandomAvatarSmall = () => AVATARS_SMALL[Math.floor(Math.random() * AVATARS_SMALL.length)];
 
 export const getRandomAvatarLarge = () => AVATARS_LARGE[Math.floor(Math.random() * AVATARS_LARGE.length)];
+
+export const getAvatarSmallForValue = (val) => AVATARS_SMALL[Math.floor(hash(val)) % AVATARS_SMALL.length];
+
+export const getAvatarLargeForValue = (val) => AVATARS_SMALL[Math.floor(hash(val)) % AVATARS_LARGE.length];
