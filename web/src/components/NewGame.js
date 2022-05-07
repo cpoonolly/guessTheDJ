@@ -59,7 +59,11 @@ const NewGame = ({ token }) => {
                 Create
               </Button>
               <Button.Or />
-              <Button color="black" disabled={!roomId} onClick={joinGame}>
+              <Button
+                className="button-secondary"
+                disabled={!roomId}
+                onClick={joinGame}
+              >
                 Join
               </Button>
             </Button.Group>
