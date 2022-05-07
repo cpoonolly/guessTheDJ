@@ -62,7 +62,7 @@ const TodaysGame = ({ user, token }) => {
           </Grid.Column>
         </Grid.Row>
       ) : (
-        <NoSongsToday game={game} />
+        <NoSongsToday gameId={gameId} />
       )}
     </Grid>
   );
@@ -88,8 +88,7 @@ const VoteBox = ({vote, users, onVote}) => {
   )
 };
 
-const NoSongsToday = ({ game }) => {
-  const { gameId } = game;
+const NoSongsToday = ({ gameId }) => {
   const navigate = useNavigate();
 
   const handleSongSuggest = () => {
