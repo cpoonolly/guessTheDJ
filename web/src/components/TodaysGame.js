@@ -68,8 +68,10 @@ const TodaysGame = ({ user, token }) => {
       {todaysSong ? (
         <Grid.Row centered style={{ minHeight: "calc(100vh)" }}>
           <Grid.Column padded verticalAlign="middle" width={10}>
-            <Segment>Hello World</Segment>
-            <Segment>
+            <Segment placeholder className="gamebox">
+              Spotify Player to go here
+            </Segment>
+            <Segment className="votebox">
               <VoteBox
                 vote={vote}
                 users={users}
@@ -88,6 +90,8 @@ const TodaysGame = ({ user, token }) => {
 const VoteBox = ({ vote, users, onVote }) => {
   return (
     <Grid stackable columns={2}>
+      {" "}
+      {/* NICOLE note: given we have about 20 zords rn, maybe more than 2 columns? thinking 3 or 4 */}
       {users.map((user) => {
         const color = getColorForValue(user.id);
         const avatar = getAvatarSmallForValue(user.id);
@@ -97,6 +101,7 @@ const VoteBox = ({ vote, users, onVote }) => {
             <Label
               as="a"
               color={vote === user.id ? color : undefined}
+              className="name"
               image
               onClick={(user) => onVote(user)}
             >
@@ -123,13 +128,9 @@ const NoSongsToday = ({ gameId }) => {
         <Segment placeholder className="gamebox">
           <Header icon>
             <Icon name="music" />
-            No songs suggested for today
+            <p style={{ color: "#dfdfee" }}>No songs suggested for today</p>
           </Header>
-          <Button
-            // primary
-            onClick={handleSongSuggest}
-            className="button-primary"
-          >
+          <Button onClick={handleSongSuggest} className="button-primary">
             Suggest Song
           </Button>
         </Segment>

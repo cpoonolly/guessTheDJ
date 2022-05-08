@@ -1,8 +1,8 @@
 button.ui.button-primary {
   /* background-color: #4d1d8a; */
+  /* color: black; */
   background-color: #d5335c;
   color: #e9e9f1;
-  /* color: black; */
 }
 
 button.ui.button-primary:hover {
@@ -12,19 +12,41 @@ button.ui.button-primary:hover {
 }
 
 button.ui.button-secondary {
+  /* color: black; */
   background-color: #23348f;
   color: #e9e9f1;
-  /* color: black; */
 }
 
 button.ui.button-secondary:hover {
+  /* color: black; */
   background-color: #2c40a2;
   color: #e9e9f1;
-  /* color: black; */
 }
 
 .ui.placeholder.segment.gamebox {
   /* background-color: rgba(256, 256, 256, 0.3); */
-  background-color: rgba(0, 0, 0, 0.3);
   /* background-color: rgba(77, 29, 138, 0.3); */
+  /* background-color: rgba(0, 0, 0, 0.3); */
+  /* background-color: rgba(213, 51, 92, 0.3); */
+  background-color: rgba(8, 17, 67, 0.3);
+}
+
+.ui.segment.votebox {
+  /* background-color: rgba(8, 17, 67, 0.3); */
+  background-color: rgba(256, 256, 256, 0.3);
+}
+
+.ui.image.label.name {
+  /* background-color: #e9e9f1; */
+  /* background-color: #23348f; */
+  /* background-color: #4b5aa4; */
+  /* background-image: linear-gradient(to right, #717fc4, #4b5aa4); */
+  color: #e9e9f1;
+  background-image: linear-gradient(to right, #23348f, #4b5aa4);
+}
+
+.ui.image.label.name:hover {
+  background-image: linear-gradient(#23348f, #23348f);
+  /* background-image: linear-gradient(to right, #d5335c, #dc5375); */
+  color: white;
 }
