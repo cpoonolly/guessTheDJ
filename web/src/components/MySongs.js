@@ -7,6 +7,7 @@ import { Spinner } from "./Spinner";
 import { ErrorOverlay } from "./ErrorOverlay";
 import { ErrorMessage } from "./ErrorMessage";
 import { Container, Grid, Label, Header, Segment } from "semantic-ui-react";
+import { getAvatarSmallForValue } from "../utils/avatars";
 
 const MySongs = ({ token }) => {
   const { gameId } = useParams();
@@ -72,94 +73,101 @@ const MySongs = ({ token }) => {
 
   return (
     <>
-      {isLoading ? <Spinner /> : <></>}
-      {errorBanner ? (
-        <ErrorMessage
-          message="Something went wrong"
-          subMessage={errorBanner}
-          onDismiss={() => setErrorBanner(null)}
-        />
-      ) : (
-        <></>
-      )}
-      {todaysSong ? (
-        <>
-          <div>
-            <p>
-              <strong>Today's Song:</strong>
-            </p>
-            <p>{JSON.stringify(todaysSong)}</p>
-          </div>
-          <div>
-            <p>
-              <strong>Current Vote:</strong>
-            </p>
-            <p>{vote}</p>
-          </div>
-        </>
-      ) : (
-        <></>
-      )}
-
-      <Container>
-        <Header>DJs:</Header>
-        {/* <ul> */}
-        <Grid stackable columns={2}>
-          {users.map((user) => (
-            <Grid.Column key={user.id}>
-              {todaysSong ? (
-                <a
-                  onClick={() => handleVoteAdd(user.id)}
-                  href="javascript:void(0)"
-                >
-                  (Vote)
-                </a>
-              ) : (
-                <></>
-              )}
-              {/* {JSON.stringify(user)} */}
-              <Label>{user.name}</Label>
-            </Grid.Column>
-          ))}
-        </Grid>
-        {/* </ul> */}
-      </Container>
-      <div>
-        <p>
-          <strong>Unplayed Songs:</strong>
-        </p>
-        <ul>
-          {unplayedSongs.map((song) => (
-            <li key={song.id}>
-              <a
-                onClick={() => handleSongRemove(song.id)}
-                href="javascript:void(0)"
-              >
-                (Delete)
-              </a>
-              {JSON.stringify(song)}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div>
-        <input
-          type={"text"}
-          value={songUrl}
-          onChange={(e) => setSongUrl(e.target.value)}
-        />
-        <button onClick={handleSongAdd}>Add Song</button>
-      </div>
-      <div>
-        <p>
-          <strong>Played Songs:</strong>
-        </p>
-        <ul>
-          {playedSongs.map((song) => (
-            <li key={song.id}>{JSON.stringify(song)}</li>
-          ))}
-        </ul>
-      </div>
+      <Grid container padded="vertically" style={{ minHeight: "calc(100vh)" }}>
+        {/* <Grid.Row centered> */}
+        {/* <Grid.Column verticalAlign="middle" padded width={8}> */}
+        {isLoading ? <Spinner /> : <></>}
+        {errorBanner ? (
+          <ErrorMessage
+            message="Something went wrong"
+            subMessage={errorBanner}
+            onDismiss={() => setErrorBanner(null)}
+          />
+        ) : (
+          <></>
+        )}
+        {todaysSong ? (
+          <>
+            <Container>
+              <Header>Today's Song:</Header>
+              <Segment>Spotify Player to go here</Segment>
+              {/* <p>{JSON.stringify(todaysSong)}</p> */}
+            </Container>
+          </>
+        ) : (
+          <></>
+        )}
+        <Container>
+          <Header>DJs:</Header>
+          <Grid stackable columns={2}>
+            {users.map((user) => {
+              const avatar = getAvatarSmallForValue(user.id);
+              return (
+                <Grid.Column key={user.id}>
+                  {todaysSong ? (
+                    <>
+                      <Label
+                        as="a"
+                        image
+                        onClick={() => handleVoteAdd(user.id)}
+                        href="javascript:void(0)"
+                      >
+                        <img src={avatar} />
+                        {user.name}
+                      </Label>
+                    </>
+                  ) : (
+                    <></>
+                  )}
+                  {/* {JSON.stringify(user)} */}
+                </Grid.Column>
+              );
+            })}
+          </Grid>
+        </Container>
+        <Container>
+          <Header>Your Current Vote:</Header>
+          <p>{vote}</p>
+        </Container>
+        <Container>
+          <Header>Your Unplayed Songs:</Header>
+          <Container>
+            <ul>
+              {unplayedSongs.map((song) => (
+                <li key={song.id}>
+                  <a
+                    onClick={() => handleSongRemove(song.id)}
+                    href="javascript:void(0)"
+                  >
+                    (Delete)
+                  </a>
+                  {JSON.stringify(song)}
+                </li>
+              ))}
+            </ul>
+          </Container>
+        </Container>
+        <Container>
+          <input
+            type={"text"}
+            value={songUrl}
+            onChange={(e) => setSongUrl(e.target.value)}
+          />
+          <button onClick={handleSongAdd}>Add Song</button>
+        </Container>
+        <Container>
+          <p>
+            <strong>Played Songs:</strong>
+          </p>
+          <ul>
+            {playedSongs.map((song) => (
+              <li key={song.id}>{JSON.stringify(song)}</li>
+            ))}
+          </ul>
+        </Container>
+        {/* </Grid.Column> */}
+        {/* </Grid.Row> */}
+      </Grid>
     </>
   );
 };
