@@ -50,3 +50,7 @@ button.ui.button-secondary:hover {
   /* background-image: linear-gradient(to right, #d5335c, #dc5375); */
   color: white;
 }
+
+.ui.header {
+  color: white;
+}

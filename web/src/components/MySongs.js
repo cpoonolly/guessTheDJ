@@ -6,7 +6,14 @@ import { addSong, removeSong, addVote } from "../firebase";
 import { Spinner } from "./Spinner";
 import { ErrorOverlay } from "./ErrorOverlay";
 import { ErrorMessage } from "./ErrorMessage";
-import { Container, Grid, Label, Header, Segment } from "semantic-ui-react";
+import {
+  Container,
+  Grid,
+  Label,
+  Header,
+  Segment,
+  Input,
+} from "semantic-ui-react";
 import { getAvatarSmallForValue } from "../utils/avatars";
 
 const MySongs = ({ token }) => {
@@ -148,17 +155,21 @@ const MySongs = ({ token }) => {
           </Container>
         </Container>
         <Container>
-          <input
-            type={"text"}
-            value={songUrl}
+          <Input
+            action={{
+              className: "button-primary",
+              content: "Add Song",
+              onClick: handleSongAdd,
+            }}
+            icon="music"
+            iconPosition="left"
+            placeholder="Your Spotify Link"
             onChange={(e) => setSongUrl(e.target.value)}
           />
-          <button onClick={handleSongAdd}>Add Song</button>
         </Container>
         <Container>
-          <p>
-            <strong>Played Songs:</strong>
-          </p>
+          <Header>Played Songs:</Header>
+
           <ul>
             {playedSongs.map((song) => (
               <li key={song.id}>{JSON.stringify(song)}</li>
